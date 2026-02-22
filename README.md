@@ -215,4 +215,4 @@ ExecDocRAG/
 
 ---
 
-*Built as a weekend project demonstrating GenAI applied to trade execution governance.*
+*project demonstrating GenAI applied to trade execution governance.*
