@@ -8,6 +8,9 @@
 | Recall@5 | 66.7% |
 | Recall@10 | 70.0% |
 | MRR (Mean Reciprocal Rank) | 0.516 |
+| NDCG@3 | 0.450 |
+| NDCG@5 | 0.465 |
+| NDCG@10 | 0.554 |
 | Number of Questions | 30 |
 
 ## Per-Question Results
@@ -30,7 +33,7 @@
 | 14 | What obligations apply when a firm routes orders t... | medium | N | N | 0.00 | SEC Rule 606 Final Rule (2018) |
 | 15 | How does Regulation NMS protect investors from tra... | medium | N | Y | 0.20 | SEC Regulation NMS Rule 611 Me |
 | 16 | What execution quality metrics must be disclosed u... | medium | Y | Y | 0.50 | SEC Rule 605 Final Rule (2024) |
-| 17 | What role does the size of an order play in best e... | medium | Y | Y | 1.00 | FINRA Regulatory Notice 21-23 |
+| 17 | What role does the size of an order play in best e... | medium | Y | Y | 1.00 | FINRA Rule 5310 - Best Executi |
 | 18 | How are limit orders treated differently under Rul... | medium | Y | Y | 0.33 | SEC Rule 606 Final Rule (2018) |
 | 19 | What are the exceptions to the Order Protection Ru... | medium | N | N | 0.00 | SEC Regulation NMS Rule 611 Me |
 | 20 | What documentation must firms maintain for best ex... | medium | Y | Y | 1.00 | FINRA Regulatory Notice 15-46 |
@@ -39,7 +42,7 @@
 | 23 | How do Rule 605 and Rule 606 work together to prov... | hard | Y | Y | 0.50 | SEC Rule 606 Final Rule (2018) |
 | 24 | What is the relationship between FINRA Rule 5310 a... | hard | N | N | 0.00 | SEC Regulation NMS Rule 611 Me |
 | 25 | How should a firm evaluate whether payment for ord... | hard | Y | Y | 1.00 | FINRA Regulatory Notice 21-23 |
-| 26 | What options does a firm have when no single marke... | hard | N | N | 0.00 | FINRA Rule 5310 - Best Executi |
+| 26 | What options does a firm have when no single marke... | hard | N | N | 0.00 | FINRA Regulatory Notice 15-46 |
 | 27 | How do the 2024 Rule 605 amendments address concer... | hard | Y | Y | 0.50 | SEC Rule 605 Fact Sheet |
 | 28 | What enforcement actions has FINRA taken related t... | hard | N | N | 0.00 | FINRA Regulatory Notice 15-46 |
 | 29 | How does the access fee cap in Rule 610 interact w... | hard | N | N | 0.00 | SEC Rule 605 Final Rule (2024) |

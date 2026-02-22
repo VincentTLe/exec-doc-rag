@@ -20,5 +20,6 @@ fredapi>=0.5
 vaderSentiment>=3.3
 pysentiment2>=0.1
 datasets>=2.14
+anthropic>=0.39  # Optional: for generative QA with Claude API
 pytest>=7.4
 pytest-cov>=4.1

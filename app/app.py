@@ -117,7 +117,7 @@ def load_execution_components():
 st.title("\U0001f4ca ExecDocRAG")
 st.caption(
     "Execution Policy Q&A with RAG + Trade Analytics | "
-    "No paid APIs \u2014 100% local inference"
+    "Extractive QA (local) + optional Generative QA (Claude API)"
 )
 
 tab_rag, tab_analytics, tab_about = st.tabs([
@@ -160,43 +160,76 @@ with tab_rag:
             key="rag_query",
         )
 
-        col_settings1, col_settings2 = st.columns([1, 1])
+        col_settings1, col_settings2, col_settings3 = st.columns([1, 1, 1])
         with col_settings1:
             top_k = st.slider("Passages to retrieve", 3, 10, 5, key="top_k")
         with col_settings2:
             min_score = st.slider("Min similarity", 0.1, 0.8, 0.25, key="min_score")
+        with col_settings3:
+            # Check if generative mode is available
+            from src.rag.generative_answer import is_api_available
+            gen_available = is_api_available()
+            use_generative = st.toggle(
+                "Generative QA (Claude API)",
+                value=False,
+                disabled=not gen_available,
+                help=(
+                    "Use Claude API for synthesized answers with citations. "
+                    "Requires ANTHROPIC_API_KEY env var."
+                    if gen_available
+                    else "Set ANTHROPIC_API_KEY to enable generative mode."
+                ),
+                key="use_gen",
+            )
 
         if query:
             with st.spinner("Searching regulatory documents..."):
                 results = retriever.retrieve(query, top_k=top_k, threshold=min_score)
+
+            # Generative QA mode
+            if use_generative and gen_available:
+                from src.rag.generative_answer import generate_answer
+
+                with st.spinner("Generating answer with Claude..."):
+                    gen_answer = generate_answer(query, results)
+
+                st.subheader("Answer (Generative)")
+                st.info(gen_answer.answer_text)
+                st.caption(
+                    f"Model: {gen_answer.model} | "
+                    f"Passages used: {gen_answer.passages_used} | "
+                    f"Sources: {', '.join(set(gen_answer.source_docs))}"
+                )
+
+            # Extractive QA mode (default)
+            else:
                 answer_response = answer_builder.build_answer(query, results)
 
-            # Display top answer
-            if answer_response.top_answer:
-                st.subheader("Answer")
-                ans = answer_response.top_answer
-                st.success(f"**{ans.answer_text}**")
-                st.caption(
-                    f"\U0001f4ce Source: **{ans.source_doc}** | "
-                    f"Page {ans.page_number} | "
-                    f"Section: {ans.section_title[:80]} | "
-                    f"Confidence: {ans.confidence:.1%} | "
-                    f"Similarity: {ans.similarity_score:.3f}"
-                )
+                if answer_response.top_answer:
+                    st.subheader("Answer (Extractive)")
+                    ans = answer_response.top_answer
+                    st.success(f"**{ans.answer_text}**")
+                    st.caption(
+                        f"\U0001f4ce Source: **{ans.source_doc}** | "
+                        f"Page {ans.page_number} | "
+                        f"Section: {ans.section_title[:80]} | "
+                        f"Confidence: {ans.confidence:.1%} | "
+                        f"Similarity: {ans.similarity_score:.3f}"
+                    )
 
-                # Additional answers
-                if len(answer_response.all_answers) > 1:
-                    with st.expander("More relevant excerpts"):
-                        for i, extra in enumerate(answer_response.all_answers[1:], 2):
-                            st.markdown(
-                                f"**{i}.** \"{extra.answer_text}\" "
-                                f"*\u2014 {extra.source_doc}, p.{extra.page_number} "
-                                f"(conf: {extra.confidence:.1%})*"
-                            )
-            else:
-                st.warning(
-                    "No confident answer found. Try rephrasing or lowering the similarity threshold."
-                )
+                    # Additional answers
+                    if len(answer_response.all_answers) > 1:
+                        with st.expander("More relevant excerpts"):
+                            for i, extra in enumerate(answer_response.all_answers[1:], 2):
+                                st.markdown(
+                                    f"**{i}.** \"{extra.answer_text}\" "
+                                    f"*\u2014 {extra.source_doc}, p.{extra.page_number} "
+                                    f"(conf: {extra.confidence:.1%})*"
+                                )
+                else:
+                    st.warning(
+                        "No confident answer found. Try rephrasing or lowering the similarity threshold."
+                    )
 
             # Retrieved passages
             st.subheader("Retrieved Passages")

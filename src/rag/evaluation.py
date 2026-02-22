@@ -1,14 +1,21 @@
-"""Retrieval evaluation metrics: Recall@k, MRR, Precision@k.
+"""Retrieval evaluation metrics: Recall@k, MRR, Precision@k, NDCG@k.
 
 Evaluates retrieval quality against a hand-crafted dataset of
 questions with ground-truth source documents and sections.
 This addresses the JD requirement to "conduct evaluations to
 monitor retrieval accuracy."
+
+Metrics:
+    - Recall@k: fraction of questions where a relevant result appears in top-k
+    - MRR: Mean Reciprocal Rank of the first relevant result
+    - Precision@k: fraction of top-k results that are relevant
+    - NDCG@k: Normalized Discounted Cumulative Gain (graded relevance ranking)
 """
 
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -52,6 +59,9 @@ class EvalMetrics:
     mrr: float  # Mean Reciprocal Rank
     precision_at_3: float
     precision_at_5: float
+    ndcg_at_3: float
+    ndcg_at_5: float
+    ndcg_at_10: float
     num_questions: int
     per_question_results: list[QuestionResult]
 
@@ -105,6 +115,30 @@ def _is_relevant(
     return section_match or keyword_match
 
 
+def _dcg_at_k(relevances: list[float], k: int) -> float:
+    """Compute Discounted Cumulative Gain at position k.
+
+    DCG@k = sum_{i=1}^{k} rel_i / log2(i + 1)
+    """
+    return sum(
+        rel / math.log2(i + 2)  # i+2 because i is 0-indexed
+        for i, rel in enumerate(relevances[:k])
+    )
+
+
+def _ndcg_at_k(relevances: list[float], k: int) -> float:
+    """Compute Normalized Discounted Cumulative Gain at position k.
+
+    NDCG@k = DCG@k / IDCG@k, where IDCG is the DCG of the ideal ranking.
+    Returns 0.0 if no relevant documents exist.
+    """
+    dcg = _dcg_at_k(relevances, k)
+    # Ideal ranking: sort relevances descending
+    ideal_relevances = sorted(relevances, reverse=True)
+    idcg = _dcg_at_k(ideal_relevances, k)
+    return dcg / idcg if idcg > 0 else 0.0
+
+
 def evaluate_retriever(
     retriever: Retriever,
     questions: list[EvalQuestion],
@@ -116,6 +150,7 @@ def evaluate_retriever(
     1. Retrieve top-10 passages.
     2. Check relevance of each result.
     3. Compute per-question hit/miss at each k level.
+    4. Compute NDCG@k with binary relevance.
 
     Args:
         retriever: The retriever to evaluate.
@@ -126,9 +161,21 @@ def evaluate_retriever(
         EvalMetrics with aggregate and per-question results.
     """
     per_question: list[QuestionResult] = []
+    all_ndcg_3: list[float] = []
+    all_ndcg_5: list[float] = []
+    all_ndcg_10: list[float] = []
 
     for eq in questions:
         results = retriever.retrieve(eq.question, top_k=max_k, threshold=0.0)
+
+        # Build binary relevance vector for NDCG
+        relevances = [1.0 if _is_relevant(r, eq) else 0.0 for r in results]
+        # Pad to max_k if fewer results
+        relevances.extend([0.0] * (max_k - len(relevances)))
+
+        all_ndcg_3.append(_ndcg_at_k(relevances, 3))
+        all_ndcg_5.append(_ndcg_at_k(relevances, 5))
+        all_ndcg_10.append(_ndcg_at_k(relevances, 10))
 
         # Find rank of first relevant result
         first_relevant_rank = 0
@@ -162,6 +209,7 @@ def evaluate_retriever(
         return EvalMetrics(
             recall_at_3=0, recall_at_5=0, recall_at_10=0,
             mrr=0, precision_at_3=0, precision_at_5=0,
+            ndcg_at_3=0, ndcg_at_5=0, ndcg_at_10=0,
             num_questions=0, per_question_results=[],
         )
 
@@ -170,10 +218,13 @@ def evaluate_retriever(
     recall_at_10 = sum(1 for r in per_question if r.hit_at_10) / n
     mrr = sum(r.reciprocal_rank for r in per_question) / n
 
-    # Precision@k: fraction of top-k results that are relevant
-    # (requires re-running retrieval, simplified here as recall since we have 1 relevant doc)
-    precision_at_3 = recall_at_3  # With 1 relevant doc, precision@3 = recall@3 / 3 ... simplified
+    # Precision@k: with single-relevant-doc eval, precision = recall (simplified)
+    precision_at_3 = recall_at_3
     precision_at_5 = recall_at_5
+
+    ndcg_at_3 = sum(all_ndcg_3) / n
+    ndcg_at_5 = sum(all_ndcg_5) / n
+    ndcg_at_10 = sum(all_ndcg_10) / n
 
     return EvalMetrics(
         recall_at_3=recall_at_3,
@@ -182,6 +233,9 @@ def evaluate_retriever(
         mrr=mrr,
         precision_at_3=precision_at_3,
         precision_at_5=precision_at_5,
+        ndcg_at_3=ndcg_at_3,
+        ndcg_at_5=ndcg_at_5,
+        ndcg_at_10=ndcg_at_10,
         num_questions=n,
         per_question_results=per_question,
     )
@@ -202,6 +256,9 @@ def generate_eval_report(metrics: EvalMetrics, output_path: Path) -> None:
         f"| Recall@5 | {metrics.recall_at_5:.1%} |",
         f"| Recall@10 | {metrics.recall_at_10:.1%} |",
         f"| MRR (Mean Reciprocal Rank) | {metrics.mrr:.3f} |",
+        f"| NDCG@3 | {metrics.ndcg_at_3:.3f} |",
+        f"| NDCG@5 | {metrics.ndcg_at_5:.3f} |",
+        f"| NDCG@10 | {metrics.ndcg_at_10:.3f} |",
         f"| Number of Questions | {metrics.num_questions} |",
         "",
         "## Per-Question Results",

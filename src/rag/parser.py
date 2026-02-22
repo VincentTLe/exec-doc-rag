@@ -118,6 +118,51 @@ def parse_pdf(
     return pages
 
 
+def _find_main_content(soup: BeautifulSoup) -> "Tag | None":
+    """Locate the primary content container in an HTML page.
+
+    Strategy: find the largest text-bearing block among candidate containers.
+    This avoids picking navigation/login sections on sites like FINRA where
+    <main> wraps the entire page.
+    """
+    # 1. Try domain-specific selectors (FINRA's Drupal layout)
+    #    The actual rule text lives inside the largest field--name-body div.
+    body_fields = soup.find_all("div", class_=re.compile(r"field--name-body"))
+    if body_fields:
+        largest = max(body_fields, key=lambda el: len(el.get_text(strip=True)))
+        if len(largest.get_text(strip=True)) > 200:
+            return largest
+
+    # 2. Look for tab-content containers (FINRA uses Bootstrap tabs)
+    tab_content = soup.find("div", class_="tab-content")
+    if tab_content:
+        panes = tab_content.find_all("div", class_="tab-pane")
+        if panes:
+            largest_pane = max(panes, key=lambda el: len(el.get_text(strip=True)))
+            if len(largest_pane.get_text(strip=True)) > 200:
+                return largest_pane
+
+    # 3. Generic selectors — text-formatted fields, article, main
+    text_formatted = soup.find("div", class_="text-formatted")
+    if text_formatted and len(text_formatted.get_text(strip=True)) > 200:
+        return text_formatted
+
+    # 4. Standard HTML5 semantic containers
+    for tag in ("article", "main"):
+        el = soup.find(tag)
+        if el:
+            return el
+
+    # 5. Common CMS content divs
+    content_div = soup.find(
+        "div", class_=re.compile(r"field-items|content|main|body")
+    )
+    if content_div:
+        return content_div
+
+    return soup.body or soup
+
+
 def parse_html(
     html_path: Path,
     doc_name: str,
@@ -126,6 +171,9 @@ def parse_html(
 
     Splits on heading elements (h1-h4) or <strong> tags that act as section markers.
     Each section becomes a ParsedPage.
+
+    Handles FINRA-style layouts where content lives in div.indent_firstpara /
+    div.indent_secondpara rather than <p> tags.
     """
     pages: list[ParsedPage] = []
 
@@ -136,17 +184,7 @@ def parse_html(
         return pages
 
     soup = BeautifulSoup(raw_html, "html.parser")
-
-    # Try to find the main content area
-    # Order matters: prefer main/section containers over article (which may be
-    # just navigation on some sites like FINRA).
-    main_content = (
-        soup.find("main")
-        or soup.find("article")
-        or soup.find("div", class_=re.compile(r"field-items|content|main|body"))
-        or soup.body
-        or soup
-    )
+    main_content = _find_main_content(soup)
 
     if main_content is None:
         return pages
@@ -157,42 +195,70 @@ def parse_html(
     section_idx = 1
 
     # Detect if h1-h4 headings meaningfully subdivide the content.
-    # If there are <=2 headings, they're likely just the page title —
-    # also treat <strong> tags that look like section headers as dividers.
     heading_tags = {"h1", "h2", "h3", "h4"}
     real_headings = [
         h for h in main_content.find_all(heading_tags)
         if h.get_text(strip=True) and len(h.get_text(strip=True)) > 3
         and "no results" not in h.get_text(strip=True).lower()
     ]
-    has_headings = len(real_headings) >= 3  # Need multiple headings to use as dividers
+    has_headings = len(real_headings) >= 3
+
+    # Track which elements' text we've already captured via a parent div,
+    # so we don't double-count when iterating descendants.
+    captured_elements: set[int] = set()
 
     def _is_section_divider(el) -> bool:
         """Check if an element acts as a section heading."""
         if el.name in heading_tags:
             return True
         # Use <strong> tags as dividers when no real headings exist
-        # Must look like a title: starts with a number/dot pattern, or is short
         if not has_headings and el.name == "strong":
             text = el.get_text(strip=True)
             if text and len(text) < 120:
-                # Supplementary material markers (.01, .02, etc.)
                 if re.match(r"^\.\d{2}\s", text):
                     return True
-                # Numbered patterns like "(a)", "Rule 5310"
                 if re.match(r"^(\(\w+\)|Rule\s|Section\s|RULE\s)", text):
                     return True
-                # All-caps short text acting as heading
                 if text.isupper() and len(text) > 5:
                     return True
-                # Separator lines
                 if "---" in text or "Supplementary Material" in text:
                     return True
         return False
 
+    def _is_content_div(el) -> bool:
+        """Check if a div is a leaf-level content carrier (e.g., FINRA indent divs)."""
+        if el.name != "div":
+            return False
+        classes = el.get("class", [])
+        cls_str = " ".join(classes).lower()
+
+        # FINRA indent_firstpara / indent_secondpara
+        if "indent" in cls_str:
+            # Only capture leaf indent divs (no child indent divs)
+            child_indents = el.find_all(
+                "div", class_=re.compile(r"indent"), recursive=False
+            )
+            if not child_indents:
+                return True
+            return False
+
+        # Generic content divs
+        is_leaf = not el.find(["p", "li", "td", "div", "table"])
+        has_content_class = any(
+            kw in cls_str for kw in ("paragraph", "text", "field__item")
+        )
+        if is_leaf or has_content_class:
+            # Don't capture if text is already in child p/li
+            if not el.find(["p", "li"]):
+                return True
+        return False
+
     for element in main_content.descendants:
+        # Skip if already captured by a parent content div
+        if id(element) in captured_elements:
+            continue
+
         if _is_section_divider(element):
-            # Save previous section if it has content
             if current_text_parts:
                 text = clean_text("\n".join(current_text_parts))
                 if len(text.split()) >= 20:
@@ -214,21 +280,16 @@ def parse_html(
             text = element.get_text(strip=True)
             if text:
                 current_text_parts.append(text)
+                # Mark descendants as captured
+                for desc in element.descendants:
+                    captured_elements.add(id(desc))
 
-        elif element.name == "div":
-            # Capture text from content divs that don't contain sub-elements
-            # (e.g., FINRA's <div class="indent_firstpara">)
-            classes = element.get("class", [])
-            is_leaf_div = not element.find(["p", "li", "td", "div", "table"])
-            has_content_class = any(
-                kw in " ".join(classes).lower()
-                for kw in ("indent", "paragraph", "text", "field__item")
-            )
-            if is_leaf_div or has_content_class:
-                text = element.get_text(strip=True)
-                # Only add if this div's text isn't already captured by child p/li
-                if text and len(text) > 30 and not element.find(["p", "li"]):
-                    current_text_parts.append(text)
+        elif _is_content_div(element):
+            text = element.get_text(strip=True)
+            if text and len(text) > 10:
+                current_text_parts.append(text)
+                for desc in element.descendants:
+                    captured_elements.add(id(desc))
 
     # Don't forget the last section
     if current_text_parts:
