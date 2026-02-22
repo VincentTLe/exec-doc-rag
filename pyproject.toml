@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "ExecDocRAG"
+version = "0.1.0"
+description = "Execution Policy Q&A with RAG + Trade Analytics for SEC/FINRA regulatory documents"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Vincent Le"}]
+readme = "README.md"
+
+dependencies = [
+    "torch>=2.0",
+    "transformers>=4.30",
+    "sentence-transformers>=2.2",
+    "faiss-cpu>=1.7.4",
+    "duckdb>=0.9",
+    "streamlit>=1.28",
+    "pymupdf>=1.23",
+    "beautifulsoup4>=4.12",
+    "requests>=2.31",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "matplotlib>=3.7",
+    "seaborn>=0.12",
+    "scikit-learn>=1.3",
+    "lightgbm>=4.0",
+    "shap>=0.43",
+    "tqdm>=4.65",
+    "yfinance>=0.2.30",
+    "fredapi>=0.5",
+    "vaderSentiment>=3.3",
+    "pysentiment2>=0.1",
+    "datasets>=2.14",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4", "pytest-cov>=4.1"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "slow: marks tests that require model downloads (deselect with '-m \"not slow\"')",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

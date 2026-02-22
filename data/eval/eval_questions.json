@@ -1,0 +1,212 @@
+[
+  {
+    "question": "What does Rule 605 require market centers to disclose?",
+    "relevant_doc": "SEC Rule 605",
+    "relevant_section": "Overview",
+    "relevant_keywords": ["execution quality", "statistics", "disclosure", "market center"],
+    "difficulty": "easy"
+  },
+  {
+    "question": "What is the definition of a covered order under Rule 605?",
+    "relevant_doc": "SEC Rule 605",
+    "relevant_section": "Definitions",
+    "relevant_keywords": ["covered order", "market order", "limit order", "national market system"],
+    "difficulty": "easy"
+  },
+  {
+    "question": "What does FINRA Rule 5310 require of member firms?",
+    "relevant_doc": "FINRA Rule 5310",
+    "relevant_section": "Rule",
+    "relevant_keywords": ["reasonable diligence", "best market", "favorable", "member"],
+    "difficulty": "easy"
+  },
+  {
+    "question": "What is interpositioning under FINRA Rule 5310?",
+    "relevant_doc": "FINRA Rule 5310",
+    "relevant_section": "Supplementary",
+    "relevant_keywords": ["third party", "interposition", "best execution"],
+    "difficulty": "easy"
+  },
+  {
+    "question": "What information must broker-dealers report under Rule 606?",
+    "relevant_doc": "SEC Rule 606",
+    "relevant_section": "Summary",
+    "relevant_keywords": ["order routing", "payment for order flow", "quarterly", "broker-dealer"],
+    "difficulty": "easy"
+  },
+  {
+    "question": "What is the purpose of Regulation NMS?",
+    "relevant_doc": "SEC Regulation NMS",
+    "relevant_section": "Overview",
+    "relevant_keywords": ["national market system", "modernize", "competition", "trade-through"],
+    "difficulty": "easy"
+  },
+  {
+    "question": "How often must Rule 606 reports be published?",
+    "relevant_doc": "SEC Rule 606",
+    "relevant_section": "Reporting",
+    "relevant_keywords": ["quarterly", "publicly", "website", "report"],
+    "difficulty": "easy"
+  },
+  {
+    "question": "What factors should firms consider when evaluating best execution?",
+    "relevant_doc": "FINRA",
+    "relevant_section": "Guidance",
+    "relevant_keywords": ["price", "volatility", "liquidity", "size", "execution quality"],
+    "difficulty": "easy"
+  },
+  {
+    "question": "What is the Order Protection Rule?",
+    "relevant_doc": "SEC Regulation NMS Rule 611",
+    "relevant_section": "Rule 611",
+    "relevant_keywords": ["trade-through", "protected quotation", "order protection"],
+    "difficulty": "easy"
+  },
+  {
+    "question": "What are the SEC's concerns with Rule 606 compliance?",
+    "relevant_doc": "SEC Rule 606 Risk Alert",
+    "relevant_section": "Observations",
+    "relevant_keywords": ["deficiencies", "compliance", "disclosure", "observations"],
+    "difficulty": "easy"
+  },
+  {
+    "question": "How did the 2024 amendments change Rule 605 reporting requirements?",
+    "relevant_doc": "SEC Rule 605",
+    "relevant_section": "Amendments",
+    "relevant_keywords": ["amendments", "expand", "entities", "reporting", "2024"],
+    "difficulty": "medium"
+  },
+  {
+    "question": "What constitutes a regular and rigorous review of execution quality?",
+    "relevant_doc": "FINRA",
+    "relevant_section": "Review",
+    "relevant_keywords": ["regular", "rigorous", "review", "execution quality", "systematic"],
+    "difficulty": "medium"
+  },
+  {
+    "question": "How does Rule 606 address payment for order flow disclosure?",
+    "relevant_doc": "SEC Rule 606",
+    "relevant_section": "Payment",
+    "relevant_keywords": ["payment for order flow", "aggregate", "material", "disclosure"],
+    "difficulty": "medium"
+  },
+  {
+    "question": "What obligations apply when a firm routes orders to another broker-dealer?",
+    "relevant_doc": "FINRA Rule 5310",
+    "relevant_section": "Supplementary",
+    "relevant_keywords": ["routing", "review", "execution quality", "another broker"],
+    "difficulty": "medium"
+  },
+  {
+    "question": "How does Regulation NMS protect investors from trade-throughs?",
+    "relevant_doc": "SEC Regulation NMS",
+    "relevant_section": "Rule 611",
+    "relevant_keywords": ["automated quotation", "protected", "exception", "trade-through"],
+    "difficulty": "medium"
+  },
+  {
+    "question": "What execution quality metrics must be disclosed under Rule 605?",
+    "relevant_doc": "SEC Rule 605",
+    "relevant_section": "Metrics",
+    "relevant_keywords": ["effective spread", "realized spread", "price improvement", "execution speed"],
+    "difficulty": "medium"
+  },
+  {
+    "question": "What role does the size of an order play in best execution?",
+    "relevant_doc": "FINRA",
+    "relevant_section": "Factors",
+    "relevant_keywords": ["size", "transaction", "market conditions", "execution"],
+    "difficulty": "medium"
+  },
+  {
+    "question": "How are limit orders treated differently under Rule 605?",
+    "relevant_doc": "SEC Rule 605",
+    "relevant_section": "Limit",
+    "relevant_keywords": ["limit order", "execution", "fill rate", "time"],
+    "difficulty": "medium"
+  },
+  {
+    "question": "What are the exceptions to the Order Protection Rule?",
+    "relevant_doc": "SEC Regulation NMS",
+    "relevant_section": "Exceptions",
+    "relevant_keywords": ["intermarket sweep", "exception", "benchmark", "self-help"],
+    "difficulty": "medium"
+  },
+  {
+    "question": "What documentation must firms maintain for best execution compliance?",
+    "relevant_doc": "FINRA",
+    "relevant_section": "Documentation",
+    "relevant_keywords": ["policies", "procedures", "written", "review", "documentation"],
+    "difficulty": "medium"
+  },
+  {
+    "question": "How does Rule 606 differ for held versus not-held orders?",
+    "relevant_doc": "SEC Rule 606",
+    "relevant_section": "Held",
+    "relevant_keywords": ["held", "not-held", "institutional", "customer"],
+    "difficulty": "medium"
+  },
+  {
+    "question": "What competitive concerns did the SEC identify in Regulation NMS?",
+    "relevant_doc": "SEC Regulation NMS",
+    "relevant_section": "Competition",
+    "relevant_keywords": ["fragmentation", "competition", "transparency", "market structure"],
+    "difficulty": "medium"
+  },
+  {
+    "question": "How do Rule 605 and Rule 606 work together to provide market transparency?",
+    "relevant_doc": "SEC Rule 605",
+    "relevant_section": "Overview",
+    "relevant_keywords": ["execution quality", "order routing", "investor", "transparency"],
+    "difficulty": "hard"
+  },
+  {
+    "question": "What is the relationship between FINRA Rule 5310 and SEC Regulation NMS?",
+    "relevant_doc": "FINRA Rule 5310",
+    "relevant_section": "Rule",
+    "relevant_keywords": ["best execution", "national market system", "regulation"],
+    "difficulty": "hard"
+  },
+  {
+    "question": "How should a firm evaluate whether payment for order flow affects execution quality?",
+    "relevant_doc": "FINRA",
+    "relevant_section": "Payment",
+    "relevant_keywords": ["payment for order flow", "execution quality", "conflicts", "review"],
+    "difficulty": "hard"
+  },
+  {
+    "question": "What options does a firm have when no single market provides best execution?",
+    "relevant_doc": "FINRA Rule 5310",
+    "relevant_section": "Supplementary",
+    "relevant_keywords": ["multiple markets", "reasonable diligence", "circumstances"],
+    "difficulty": "hard"
+  },
+  {
+    "question": "How do the 2024 Rule 605 amendments address concerns about odd-lot orders?",
+    "relevant_doc": "SEC Rule 605 Final Rule (2024)",
+    "relevant_section": "Odd-lot",
+    "relevant_keywords": ["odd-lot", "round lot", "fractional", "order size"],
+    "difficulty": "hard"
+  },
+  {
+    "question": "What enforcement actions has FINRA taken related to best execution failures?",
+    "relevant_doc": "FINRA Regulatory Notice 21-23",
+    "relevant_section": "Enforcement",
+    "relevant_keywords": ["discipline", "failures", "enforcement", "examples"],
+    "difficulty": "hard"
+  },
+  {
+    "question": "How does the access fee cap in Rule 610 interact with execution quality analysis?",
+    "relevant_doc": "SEC Regulation NMS",
+    "relevant_section": "Access",
+    "relevant_keywords": ["access fee", "cap", "rebate", "execution"],
+    "difficulty": "hard"
+  },
+  {
+    "question": "What role do self-regulatory organizations play under Regulation NMS?",
+    "relevant_doc": "SEC Regulation NMS",
+    "relevant_section": "SRO",
+    "relevant_keywords": ["self-regulatory", "SRO", "national market system", "plan"],
+    "difficulty": "hard"
+  }
+]
